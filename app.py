@@ -1,31 +1,14 @@
-from flask import Flask,request, url_for, redirect, render_template
+import streamlit as st
+import os
 import pickle
-import numpy as np
 
-app = Flask(__name__, template_folder='template')
+st.title("Mental Health Prediction App")
 
-model=pickle.load(open('model.pkl','rb'))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "model.pkl")
 
-
-@app.route('/')
-def hello_world():
-    return render_template("index.html")
-
-
-@app.route('/predict',methods=['POST','GET'])
-def predict():
-    int_features=[int(x) for x in request.form.values()]
-    final=[np.array(int_features)]
-    print(int_features)
-    print(final)
-    prediction=model.predict_proba(final)
-    output='{0:.{1}f}'.format(prediction[0][1], 2)
-
-    if output>str(0.5):
-        return render_template('index.html',pred='You need a treatment.\nProbability of mental illness is {}'.format(output))
-    else:
-        return render_template('index.html',pred='You do not need treatment.\n Probability of mental illness is {}'.format(output))
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if os.path.exists(MODEL_PATH):
+    model = pickle.load(open(MODEL_PATH, "rb"))
+    st.success("Model Loaded Successfully ✅")
+else:
+    st.warning("Model file not found ⚠️")
