@@ -1,27 +1,15 @@
 import streamlit as st
 import pandas as pd
-import os
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 st.title("Mental Health Prediction App")
 
-# ---- File Path ----
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_DIR, "mental_health.csv")
-
-# ---- Load Dataset ----
-try:
-    data = pd.read_csv(DATA_PATH, encoding="latin1")
-    st.success("Dataset Loaded Successfully ✅")
-except:
-    st.error("Dataset not found ❌")
-    st.stop()
+data = pd.read_csv("mental_health.csv", encoding="latin1")
 
 st.write(data.head())
 
-# ---- Train Model ----
 if st.button("Train Model"):
 
     X = data.iloc[:, :-1]
@@ -41,5 +29,4 @@ if st.button("Train Model"):
 
     accuracy = accuracy_score(y_test, model.predict(X_test))
 
-    st.success(f"Model Trained Successfully 🎉")
     st.write(f"Accuracy: {accuracy:.2f}")
