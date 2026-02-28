@@ -10,7 +10,12 @@ import warnings
 import pickle
 warnings.filterwarnings("ignore")
 
-data = pd.read_csv("mental_health.csv")
+import os
+
+base_dir = os.path.dirname(__file__)
+file_path = os.path.join(base_dir, "mental_health.csv")
+
+data = pd.read_csv(file_path)
 male_str = ["male", "m", "male-ish", "maile", "mal", "male (cis)", "make", "male ", "man","msle", "mail", "malr","cis man", "Cis Male", "cis male"]
 trans_str = ["trans-female", "something kinda male?", "queer/she/they", "non-binary","nah", "all", "enby", "fluid", "genderqueer", "androgyne", "agender", "male leaning androgynous", "guy (-ish) ^_^", "trans woman", "neuter", "female (trans)", "queer", "ostensibly male, unsure what that really means"]           
 female_str = ["cis female", "f", "female", "woman",  "femake", "female ","cis-female/femme", "female (cis)", "femail"]
