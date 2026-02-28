@@ -6,10 +6,22 @@ from sklearn.metrics import accuracy_score
 
 st.title("Mental Health Prediction App")
 
-data = pd.read_csv("mental_health.csv", encoding="latin1")
+# -------- Safe CSV Loading --------
+try:
+    # Try normal comma separator first
+    data = pd.read_csv("mental_health.csv", engine="python")
+except:
+    try:
+        # Try semicolon separator
+        data = pd.read_csv("mental_health.csv", sep=";", engine="python")
+    except Exception as e:
+        st.error(f"CSV Loading Error: {e}")
+        st.stop()
 
+st.success("Dataset Loaded Successfully ✅")
 st.write(data.head())
 
+# -------- Train Model --------
 if st.button("Train Model"):
 
     X = data.iloc[:, :-1]
@@ -29,4 +41,5 @@ if st.button("Train Model"):
 
     accuracy = accuracy_score(y_test, model.predict(X_test))
 
+    st.success("Model Trained Successfully 🎉")
     st.write(f"Accuracy: {accuracy:.2f}")
