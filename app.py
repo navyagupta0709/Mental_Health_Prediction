@@ -42,4 +42,4 @@ if st.button("Train Model"):
     accuracy = accuracy_score(y_test, model.predict(X_test))
 
     st.success(f"Model Trained Successfully 🎉")
-    st.write(f"Accuracy: {accuracy:.2f}"))
+    st.write(f"Accuracy: {accuracy:.2f}")
