@@ -1,45 +1,31 @@
-import streamlit as st
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from flask import Flask,request, url_for, redirect, render_template
+import pickle
+import numpy as np
 
-st.title("Mental Health Prediction App")
+app = Flask(__name__, template_folder='template')
 
-# -------- Safe CSV Loading (Encoding + Separator Safe) --------
-try:
-    data = pd.read_csv(
-        "mental_health.csv",
-        encoding="latin1",
-        sep=None,
-        engine="python",
-        on_bad_lines="skip"
-    )
-except Exception as e:
-    st.error(f"CSV Loading Error: {e}")
-    st.stop()
+model=pickle.load(open('model.pkl','rb'))
 
-st.success("Dataset Loaded Successfully ✅")
-st.write(data.head())
-# -------- Train Model --------
-if st.button("Train Model"):
 
-    X = data.iloc[:, :-1]
-    y = data.iloc[:, -1]
+@app.route('/')
+def hello_world():
+    return render_template("index.html")
 
-    X = pd.get_dummies(X)
 
-    if y.dtype == "object":
-        y = y.astype("category").cat.codes
+@app.route('/predict',methods=['POST','GET'])
+def predict():
+    int_features=[int(x) for x in request.form.values()]
+    final=[np.array(int_features)]
+    print(int_features)
+    print(final)
+    prediction=model.predict_proba(final)
+    output='{0:.{1}f}'.format(prediction[0][1], 2)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    if output>str(0.5):
+        return render_template('index.html',pred='You need a treatment.\nProbability of mental illness is {}'.format(output))
+    else:
+        return render_template('index.html',pred='You do not need treatment.\n Probability of mental illness is {}'.format(output))
 
-    model = LogisticRegression(max_iter=1000)
-    model.fit(X_train, y_train)
 
-    accuracy = accuracy_score(y_test, model.predict(X_test))
-
-    st.success("Model Trained Successfully 🎉")
-    st.write(f"Accuracy: {accuracy:.2f}")
+if __name__ == '__main__':
+    app.run(debug=True)
