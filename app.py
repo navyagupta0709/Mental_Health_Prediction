@@ -10,8 +10,9 @@ import pandas as pd
 
 st.title("Mental Health Prediction App")
 
+
 data = pd.read_csv(
-    "mental_health.csv",
+    "survey.csv",
     encoding="latin1",
     sep=None,
     engine="python",
