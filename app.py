@@ -8,19 +8,19 @@ st.title("Mental Health Prediction App")
 
 # -------- Safe CSV Loading (Encoding + Separator Safe) --------
 try:
-    data = pd.read_csv("mental_health.csv", encoding="utf-8")
-except UnicodeDecodeError:
-    try:
-        data = pd.read_csv("mental_health.csv", encoding="latin1")
-    except Exception as e:
-        st.error(f"CSV Loading Error: {e}")
-        st.stop()
-
-st.write(data.head())
+    data = pd.read_csv(
+        "mental_health.csv",
+        encoding="latin1",
+        sep=None,
+        engine="python",
+        on_bad_lines="skip"
+    )
+except Exception as e:
+    st.error(f"CSV Loading Error: {e}")
+    st.stop()
 
 st.success("Dataset Loaded Successfully ✅")
 st.write(data.head())
-
 # -------- Train Model --------
 if st.button("Train Model"):
 
