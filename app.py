@@ -1,28 +1,38 @@
 import streamlit as st
-import pickle
+import pandas as pd
 import numpy as np
-import os
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 
 st.title("Mental Health Prediction App")
 
-# ---- Load Model Safely ----
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(BASE_DIR, "model.pkl")
+# ---- Load Dataset ----
+data = pd.read_csv("mental_health.csv")
 
-with open(model_path, "rb") as f:
-    model = pickle.load(f)
+st.success("Dataset Loaded Successfully ✅")
 
-st.success("Model Loaded Successfully ✅")
+# ---- Simple Example Columns ----
+# IMPORTANT: apne dataset ke according column names change karna
+X = data.iloc[:, :-1]
+y = data.iloc[:, -1]
 
-# ---- Input Fields ----
-age = st.number_input("Enter Age", min_value=1, max_value=100)
-work_hours = st.number_input("Working Hours per day", min_value=1, max_value=24)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+st.success("Model Trained Successfully ✅")
+
+# ---- Take Input ----
+inputs = []
+for col in X.columns:
+    value = st.number_input(f"Enter {col}")
+    inputs.append(value)
 
 if st.button("Predict"):
-    features = np.array([[age, work_hours]])
-    prediction = model.predict_proba(features)[0][1]
+    prediction = model.predict([inputs])[0]
 
-    if prediction > 0.5:
-        st.error(f"You need treatment. Probability: {prediction:.2f}")
+    if prediction == 1:
+        st.error("You need treatment.")
     else:
-        st.success(f"You do not need treatment. Probability: {prediction:.2f}")
+        st.success("You do not need treatment.")
