@@ -1,31 +1,28 @@
-from flask import Flask,request, url_for, redirect, render_template
+import streamlit as st
 import pickle
 import numpy as np
+import os
 
-app = Flask(__name__, template_folder='template')
+st.title("Mental Health Prediction App")
 
-model = pickle.load(open("model.pkl", "rb"))
+# ---- Load Model Safely ----
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "model.pkl")
 
+with open(model_path, "rb") as f:
+    model = pickle.load(f)
 
-@app.route('/')
-def hello_world():
-    return render_template("index.html")
+st.success("Model Loaded Successfully ✅")
 
+# ---- Input Fields ----
+age = st.number_input("Enter Age", min_value=1, max_value=100)
+work_hours = st.number_input("Working Hours per day", min_value=1, max_value=24)
 
-@app.route('/predict',methods=['POST','GET'])
-def predict():
-    int_features=[int(x) for x in request.form.values()]
-    final=[np.array(int_features)]
-    print(int_features)
-    print(final)
-    prediction=model.predict_proba(final)
-    output='{0:.{1}f}'.format(prediction[0][1], 2)
+if st.button("Predict"):
+    features = np.array([[age, work_hours]])
+    prediction = model.predict_proba(features)[0][1]
 
-    if output>str(0.5):
-        return render_template('index.html',pred='You need a treatment.\nProbability of mental illness is {}'.format(output))
+    if prediction > 0.5:
+        st.error(f"You need treatment. Probability: {prediction:.2f}")
     else:
-        return render_template('index.html',pred='You do not need treatment.\n Probability of mental illness is {}'.format(output))
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        st.success(f"You do not need treatment. Probability: {prediction:.2f}")
