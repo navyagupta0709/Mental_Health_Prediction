@@ -23,6 +23,9 @@ st.write(data.head())
 
 # ---- Simple Example Columns ----
 # IMPORTANT: apne dataset ke according column names change karna
+# ---- Convert Categorical to Numeric ----
+data = pd.get_dummies(data, drop_first=True)
+
 X = data.iloc[:, :-1]
 y = data.iloc[:, -1]
 
