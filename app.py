@@ -4,8 +4,6 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 
-st.title("Mental Health Prediction App")
-
 # ---- Load Dataset ----
 import streamlit as st
 import pandas as pd
