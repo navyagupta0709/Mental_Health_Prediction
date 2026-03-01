@@ -7,9 +7,21 @@ from sklearn.model_selection import train_test_split
 st.title("Mental Health Prediction App")
 
 # ---- Load Dataset ----
-data = pd.read_csv("mental_health.csv")
+import streamlit as st
+import pandas as pd
+
+st.title("Mental Health Prediction App")
+
+data = pd.read_csv(
+    "mental_health.csv",
+    encoding="latin1",
+    sep=None,
+    engine="python",
+    on_bad_lines="skip"
+)
 
 st.success("Dataset Loaded Successfully ✅")
+st.write(data.head())
 
 # ---- Simple Example Columns ----
 # IMPORTANT: apne dataset ke according column names change karna
