@@ -65,23 +65,37 @@ st.info(f"Model Accuracy: {accuracy:.2f}")
 
 # ---------------- Prediction Section ----------------
 st.markdown("---")
-st.subheader("🔮 Enter Details For Prediction")
+st.subheader("🔮 Enter Details")
 
-input_data = {}
+# Take only important raw columns (before get_dummies)
+raw_data = pd.read_csv("survey.csv", encoding="latin1")
 
-for col in X.columns:
-    input_data[col] = st.number_input(f"{col}", value=0.0)
+age = st.number_input("Age", min_value=18, max_value=100, value=25)
+gender = st.selectbox("Gender", raw_data["Gender"].unique())
+family_history = st.selectbox("Family History", raw_data["family_history"].unique())
+self_employed = st.selectbox("Self Employed", raw_data["self_employed"].unique())
+work_interfere = st.selectbox("Work Interfere", raw_data["work_interfere"].dropna().unique())
 
 if st.button("Predict"):
-    input_df = pd.DataFrame([input_data])
-    input_df = input_df[X.columns]  # ensure correct column order
+
+    input_dict = {
+        "Age": age,
+        "Gender": gender,
+        "family_history": family_history,
+        "self_employed": self_employed,
+        "work_interfere": work_interfere
+    }
+
+    input_df = pd.DataFrame([input_dict])
+
+    # same preprocessing
+    input_df = pd.get_dummies(input_df)
+    input_df = input_df.reindex(columns=X.columns, fill_value=0)
 
     prediction = model.predict(input_df)[0]
     probability = model.predict_proba(input_df)[0][1]
 
-    st.markdown("---")
-
     if prediction == 1:
-        st.error(f"⚠ You may need treatment.\n\nProbability: {probability:.2f}")
+        st.error(f"⚠ You may need treatment\nProbability: {probability:.2f}")
     else:
-        st.success(f"✅ You may not need treatment.\n\nProbability: {probability:.2f}")
+        st.success(f"✅ You may not need treatment\nProbability: {probability:.2f}")
