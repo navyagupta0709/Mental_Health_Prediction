@@ -6,17 +6,17 @@ from sklearn.metrics import accuracy_score
 
 st.title("Mental Health Prediction App")
 
-# -------- Safe CSV Loading --------
+# -------- Safe CSV Loading (Encoding + Separator Safe) --------
 try:
-    # Try normal comma separator first
-    data = pd.read_csv("mental_health.csv", engine="python")
-except:
+    data = pd.read_csv("mental_health.csv", encoding="utf-8")
+except UnicodeDecodeError:
     try:
-        # Try semicolon separator
-        data = pd.read_csv("mental_health.csv", sep=";", engine="python")
+        data = pd.read_csv("mental_health.csv", encoding="latin1")
     except Exception as e:
         st.error(f"CSV Loading Error: {e}")
         st.stop()
+
+st.write(data.head())
 
 st.success("Dataset Loaded Successfully ✅")
 st.write(data.head())
