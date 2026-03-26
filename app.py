@@ -1,101 +1,152 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 
-# ---------------- Page Config ----------------
-st.set_page_config(
-    page_title="Mental Health Prediction",
-    page_icon="🧠",
-    layout="wide"
-)
+# -------------------------------
+# PAGE CONFIG
+# -------------------------------
+st.set_page_config(page_title="Mental Health AI", layout="wide")
 
-st.title("🧠 Mental Health Prediction App")
+# -------------------------------
+# CUSTOM CSS (PREMIUM UI)
+# -------------------------------
+st.markdown("""
+<style>
+body {
+    background-color: #0f172a;
+}
 
-# ---------------- Load Dataset ----------------
-try:
-    data = pd.read_csv(
-        "survey.csv",
-        encoding="latin1",
-        sep=None,
-        engine="python",
-        on_bad_lines="skip"
-    )
-except Exception as e:
-    st.error(f"Error loading dataset: {e}")
-    st.stop()
+.main {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: white;
+}
 
-st.success("Dataset Loaded Successfully ✅")
+h1, h2, h3 {
+    color: #38bdf8;
+    text-align: center;
+}
 
-# Show dataset
-with st.expander("📊 View Dataset"):
-    st.dataframe(data.head())
+.stButton>button {
+    background: linear-gradient(90deg, #38bdf8, #6366f1);
+    color: white;
+    border-radius: 10px;
+    height: 3em;
+    width: 100%;
+    font-size: 16px;
+    border: none;
+}
 
-# ---------------- Preprocessing ----------------
-data = data.dropna()
+.stTextInput>div>div>input {
+    border-radius: 10px;
+}
 
-# Target column (IMPORTANT: ensure treatment is your target)
-if "treatment" not in data.columns:
-    st.error("Target column 'treatment' not found in dataset.")
-    st.stop()
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 15px rgba(56,189,248,0.3);
+    margin-bottom: 20px;
+}
+</style>
+""", unsafe_allow_html=True)
 
-y = data["treatment"]
+# -------------------------------
+# HEADER
+# -------------------------------
+st.markdown("<h1>🧠 Mental Health AI Therapist</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center;'>Your smart companion for mental wellness 💙</p>", unsafe_allow_html=True)
 
-# Convert Yes/No to 1/0
-y = y.map({"Yes": 1, "No": 0})
+# -------------------------------
+# USER DETAILS CARD
+# -------------------------------
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-X = data.drop("treatment", axis=1)
+st.subheader("📋 Enter Details")
 
-# Convert categorical to numeric
-X = pd.get_dummies(X, drop_first=True)
+age = st.slider("Age", 10, 60, 25)
+gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+family_history = st.selectbox("Family History of Mental Illness", ["Yes", "No"])
 
-# ---------------- Train Model ----------------
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+st.markdown("</div>", unsafe_allow_html=True)
 
-model = LogisticRegression(max_iter=1000)
-model.fit(X_train, y_train)
+# -------------------------------
+# QUESTIONNAIRE CARD
+# -------------------------------
+st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-accuracy = model.score(X_test, y_test)
+st.subheader("📝 Mental Health Assessment")
 
-st.success("Model Trained Successfully ✅")
-st.info(f"Model Accuracy: {accuracy:.2f}")
+q1 = st.radio("Do you feel anxious frequently?", ["Never", "Sometimes", "Often"])
+q2 = st.radio("Do you feel low or depressed?", ["Never", "Sometimes", "Often"])
+q3 = st.radio("Do you have trouble sleeping?", ["No", "Sometimes", "Yes"])
+q4 = st.radio("Do you feel motivated?", ["Yes", "Sometimes", "No"])
 
-# ---------------- Prediction Section ----------------
-st.markdown("---")
-st.subheader("🔮 Enter Details")
+st.markdown("</div>", unsafe_allow_html=True)
 
-# Take only important raw columns (before get_dummies)
-raw_data = pd.read_csv("survey.csv", encoding="latin1")
+# -------------------------------
+# ASSESSMENT BUTTON
+# -------------------------------
+if st.button("🚀 Analyze My Mental Health"):
 
-age = st.number_input("Age", min_value=18, max_value=100, value=25)
-gender = st.selectbox("Gender", raw_data["Gender"].unique())
-family_history = st.selectbox("Family History", raw_data["family_history"].unique())
-self_employed = st.selectbox("Self Employed", raw_data["self_employed"].unique())
-work_interfere = st.selectbox("Work Interfere", raw_data["work_interfere"].dropna().unique())
-
-if st.button("Predict"):
-
-    input_dict = {
-        "Age": age,
-        "Gender": gender,
-        "family_history": family_history,
-        "self_employed": self_employed,
-        "work_interfere": work_interfere
+    mapping = {
+        "Never": 0,
+        "No": 0,
+        "Sometimes": 1,
+        "Often": 2,
+        "Yes": 2
     }
 
-    input_df = pd.DataFrame([input_dict])
+    score = mapping[q1] + mapping[q2] + mapping[q3] + mapping[q4]
 
-    # same preprocessing
-    input_df = pd.get_dummies(input_df)
-    input_df = input_df.reindex(columns=X.columns, fill_value=0)
-
-    prediction = model.predict(input_df)[0]
-    probability = model.predict_proba(input_df)[0][1]
-
-    if prediction == 1:
-        st.error(f"⚠ You may need treatment\nProbability: {probability:.2f}")
+    # Result classification
+    if score <= 2:
+        result = "Healthy 😊"
+        color = "green"
+    elif score <= 5:
+        result = "Mild Stress 😐"
+        color = "orange"
     else:
-        st.success(f"✅ You may not need treatment\nProbability: {probability:.2f}")
+        result = "High Stress ⚠️"
+        color = "red"
+
+    # RESULT CARD
+    st.markdown(f"""
+    <div class='card'>
+        <h2 style='color:{color};'>Your Status: {result}</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # AI THERAPIST RESPONSE
+    def therapist_response(result):
+        if "Healthy" in result:
+            return "You're doing great! Keep maintaining a balanced lifestyle 🌿"
+        elif "Mild" in result:
+            return "You may be experiencing stress. Try meditation, exercise, and talking to loved ones 💙"
+        else:
+            return "You might be going through a tough time. Please consider professional help or talk to someone you trust 🤍"
+
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.subheader("💬 AI Therapist Suggestion")
+    st.write(therapist_response(result))
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# -------------------------------
+# CHATBOT SECTION
+# -------------------------------
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+
+st.subheader("💭 Talk to AI Therapist")
+
+user_input = st.text_input("How are you feeling today?")
+
+if user_input:
+    user_input = user_input.lower()
+
+    if "sad" in user_input or "depressed" in user_input:
+        st.write("I'm really sorry you're feeling this way 💙 Want to talk more?")
+    elif "stress" in user_input or "anxious" in user_input:
+        st.write("Take a deep breath 🌿 You're stronger than you think.")
+    elif "happy" in user_input:
+        st.write("That's amazing! Keep smiling ✨")
+    else:
+        st.write("I'm here to listen 🙂 Tell me more.")
+
+st.markdown("</div>", unsafe_allow_html=True)
