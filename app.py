@@ -1,12 +1,12 @@
 import streamlit as st
 
 # -------------------------------
-# PAGE CONFIG
+# CONFIG
 # -------------------------------
-st.set_page_config(page_title="Mental Health AI", layout="wide")
+st.set_page_config(page_title="Mental Health AI", layout="centered")
 
 # -------------------------------
-# CUSTOM CSS (PREMIUM LOOK)
+# CSS (CLEAN PREMIUM)
 # -------------------------------
 st.markdown("""
 <style>
@@ -23,20 +23,12 @@ h1, h2, h3 {
 .stButton>button {
     background: linear-gradient(90deg, #38bdf8, #6366f1);
     color: white;
-    border-radius: 12px;
+    border-radius: 10px;
     height: 3em;
     width: 100%;
-    font-size: 16px;
     border: none;
 }
 
-.card {
-    background: #1e293b;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0px 0px 20px rgba(56,189,248,0.3);
-    margin-bottom: 20px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -46,38 +38,34 @@ h1, h2, h3 {
 if "page" not in st.session_state:
     st.session_state.page = 1
 
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 # -------------------------------
 # HEADER
 # -------------------------------
-st.markdown("<h1>🧠 Mental Health AI Therapist</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center;'>Your smart companion for mental wellness 💙</p>", unsafe_allow_html=True)
+st.title("🧠 Mental Health AI Therapist")
+st.write("Your smart companion for mental wellness 💙")
 
 # =====================================================
-# PAGE 1 → USER DETAILS
+# PAGE 1
 # =====================================================
 if st.session_state.page == 1:
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("📋 Enter Your Details")
+    st.subheader("📋 Enter Details")
 
     age = st.slider("Age", 10, 60, 25)
     gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-    family = st.selectbox("Family History of Mental Illness", ["Yes", "No"])
+    family = st.selectbox("Family History", ["Yes", "No"])
 
     if st.button("Next ➡"):
-        st.session_state.age = age
-        st.session_state.gender = gender
-        st.session_state.family = family
         st.session_state.page = 2
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
 # =====================================================
-# PAGE 2 → ASSESSMENT
+# PAGE 2
 # =====================================================
 elif st.session_state.page == 2:
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("📝 Mental Health Assessment")
 
     q1 = st.radio("Do you feel anxious frequently?", ["Never", "Sometimes", "Often"])
@@ -99,10 +87,8 @@ elif st.session_state.page == 2:
             st.session_state.score = score
             st.session_state.page = 3
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
 # =====================================================
-# PAGE 3 → RESULT + AI THERAPIST
+# PAGE 3
 # =====================================================
 elif st.session_state.page == 3:
 
@@ -110,54 +96,48 @@ elif st.session_state.page == 3:
 
     if score <= 2:
         result = "Healthy 😊"
-        color = "green"
     elif score <= 5:
         result = "Mild Stress 😐"
-        color = "orange"
     else:
         result = "High Stress ⚠️"
-        color = "red"
 
-    # RESULT CARD
-    st.markdown(f"""
-    <div class='card'>
-        <h2 style='color:{color};'>Your Status: {result}</h2>
-    </div>
-    """, unsafe_allow_html=True)
+    st.subheader(f"📊 Your Status: {result}")
 
-    # AI THERAPIST RESPONSE
-    def therapist_response(result):
-        if "Healthy" in result:
-            return "You're doing great! Keep maintaining a balanced lifestyle 🌿"
-        elif "Mild" in result:
-            return "You may be experiencing stress. Try meditation, exercise, and talking to loved ones 💙"
-        else:
-            return "You might be going through a tough time. Please consider professional help 🤍"
+    # AI Suggestion
+    if "Healthy" in result:
+        suggestion = "You're doing great! Keep maintaining balance 🌿"
+    elif "Mild" in result:
+        suggestion = "You may be stressed. Try meditation & talking to loved ones 💙"
+    else:
+        suggestion = "Please consider professional help 🤍 You’re not alone."
 
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.subheader("💬 AI Therapist Suggestion")
-    st.write(therapist_response(result))
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.write(suggestion)
 
-    # CHATBOT
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    # ---------------- CHATBOT ----------------
     st.subheader("💭 Talk to AI Therapist")
 
-    user_input = st.text_input("How are you feeling today?")
+    user_input = st.text_input("How are you feeling?", key="input")
 
     if user_input:
-        user_input = user_input.lower()
-
-        if "sad" in user_input:
-            st.write("I'm here for you 💙 Want to talk more?")
-        elif "stress" in user_input:
-            st.write("Take a deep breath 🌿 You're strong!")
-        elif "happy" in user_input:
-            st.write("That's amazing! Keep smiling ✨")
+        if "sad" in user_input.lower():
+            response = "I'm here for you 💙 Want to talk more?"
+        elif "stress" in user_input.lower():
+            response = "Take a deep breath 🌿 You’re strong!"
+        elif "happy" in user_input.lower():
+            response = "That's amazing! Keep smiling ✨"
         else:
-            st.write("Tell me more 🙂")
+            response = "Tell me more 🙂"
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        # Save chat
+        st.session_state.chat_history.append(("You", user_input))
+        st.session_state.chat_history.append(("AI", response))
 
+    # Show chat history
+    for sender, msg in st.session_state.chat_history:
+        st.write(f"**{sender}:** {msg}")
+
+    # RESET BUTTON
     if st.button("🔄 Start Again"):
         st.session_state.page = 1
+        st.session_state.chat_history = []
