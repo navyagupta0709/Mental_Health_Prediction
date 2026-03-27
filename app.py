@@ -6,7 +6,7 @@ import streamlit as st
 st.set_page_config(page_title="Mental Health AI", layout="centered")
 
 # -------------------------------
-# CSS (CLEAN PREMIUM)
+# CSS
 # -------------------------------
 st.markdown("""
 <style>
@@ -28,7 +28,6 @@ h1, h2, h3 {
     width: 100%;
     border: none;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -103,7 +102,7 @@ elif st.session_state.page == 3:
 
     st.subheader(f"📊 Your Status: {result}")
 
-    # AI Suggestion
+    # Suggestion
     if "Healthy" in result:
         suggestion = "You're doing great! Keep maintaining balance 🌿"
     elif "Mild" in result:
@@ -114,43 +113,32 @@ elif st.session_state.page == 3:
     st.subheader("💬 AI Therapist Suggestion")
     st.write(suggestion)
 
-# ---------------- CHATBOT ----------------
-st.subheader("💭 Talk to AI Therapist")
+    # ---------------- CHATBOT ----------------
+    st.subheader("💭 Talk to AI Therapist")
 
-# Initialize
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
-# Display chat
-for sender, msg in st.session_state.chat_history:
-    st.write(f"**{sender}:** {msg}")
-
-# Form (IMPORTANT FIX 🔥)
-with st.form(key="chat_form", clear_on_submit=True):
-    user_input = st.text_input("Type your message...")
-    submit = st.form_submit_button("Send 💬")
-
-    if submit and user_input.strip() != "":
-
-        # AI logic
-        if "sad" in user_input.lower():
-            response = "I'm here for you 💙 Want to tell me what happened?"
-        elif "stress" in user_input.lower():
-            response = "Take a deep breath 🌿 What's stressing you out?"
-        elif "happy" in user_input.lower():
-            response = "That's amazing! Tell me more ✨"
-        else:
-            response = "I understand 🙂 Tell me more."
-
-        # Save chat
-        st.session_state.chat_history.append(("You", user_input))
-        st.session_state.chat_history.append(("AI", response))
-
-    # Show chat history
     for sender, msg in st.session_state.chat_history:
         st.write(f"**{sender}:** {msg}")
 
-    # RESET BUTTON
+    # FORM (NO ERROR VERSION)
+    with st.form("chat_form", clear_on_submit=True):
+        user_input = st.text_input("Type your message...")
+        send = st.form_submit_button("Send 💬")
+
+        if send and user_input.strip() != "":
+
+            if "sad" in user_input.lower():
+                response = "I'm here for you 💙 Want to tell me what happened?"
+            elif "stress" in user_input.lower():
+                response = "Take a deep breath 🌿 What's stressing you out?"
+            elif "happy" in user_input.lower():
+                response = "That's amazing! Keep smiling ✨"
+            else:
+                response = "I understand 🙂 Tell me more."
+
+            st.session_state.chat_history.append(("You", user_input))
+            st.session_state.chat_history.append(("AI", response))
+
+    # RESET BUTTON (FIXED INDENTATION)
     if st.button("🔄 Start Again"):
-    st.session_state.page = 1
-    st.session_state.chat_history = []
+        st.session_state.page = 1
+        st.session_state.chat_history = []
