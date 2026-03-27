@@ -114,35 +114,33 @@ elif st.session_state.page == 3:
     st.subheader("💬 AI Therapist Suggestion")
     st.write(suggestion)
 
-  # ---------------- CHATBOT ----------------
+# ---------------- CHATBOT ----------------
 st.subheader("💭 Talk to AI Therapist")
 
-# Chat history display
+# Initialize
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# Display chat
 for sender, msg in st.session_state.chat_history:
     st.write(f"**{sender}:** {msg}")
 
-# Input box + send button
-user_input = st.text_input("Type your message...", key="chat_input")
+# Form (IMPORTANT FIX 🔥)
+with st.form(key="chat_form", clear_on_submit=True):
+    user_input = st.text_input("Type your message...")
+    submit = st.form_submit_button("Send 💬")
 
-if st.button("Send 💬"):
-    if user_input.strip() != "":
+    if submit and user_input.strip() != "":
 
-        # AI response logic
+        # AI logic
         if "sad" in user_input.lower():
             response = "I'm here for you 💙 Want to tell me what happened?"
         elif "stress" in user_input.lower():
             response = "Take a deep breath 🌿 What's stressing you out?"
         elif "happy" in user_input.lower():
-            response = "That's amazing! Tell me what's making you happy ✨"
+            response = "That's amazing! Tell me more ✨"
         else:
-            response = "I understand 🙂 Tell me more about it."
-
-        # Save chat
-        st.session_state.chat_history.append(("You", user_input))
-        st.session_state.chat_history.append(("AI", response))
-
-        # Clear input box
-        st.session_state.chat_input = ""
+            response = "I understand 🙂 Tell me more."
 
         # Save chat
         st.session_state.chat_history.append(("You", user_input))
@@ -154,5 +152,5 @@ if st.button("Send 💬"):
 
     # RESET BUTTON
     if st.button("🔄 Start Again"):
-        st.session_state.page = 1
-        st.session_state.chat_history = []
+    st.session_state.page = 1
+    st.session_state.chat_history = []
