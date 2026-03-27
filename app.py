@@ -114,20 +114,35 @@ elif st.session_state.page == 3:
     st.subheader("💬 AI Therapist Suggestion")
     st.write(suggestion)
 
-    # ---------------- CHATBOT ----------------
-    st.subheader("💭 Talk to AI Therapist")
+  # ---------------- CHATBOT ----------------
+st.subheader("💭 Talk to AI Therapist")
 
-    user_input = st.text_input("How are you feeling?", key="input")
+# Chat history display
+for sender, msg in st.session_state.chat_history:
+    st.write(f"**{sender}:** {msg}")
 
-    if user_input:
+# Input box + send button
+user_input = st.text_input("Type your message...", key="chat_input")
+
+if st.button("Send 💬"):
+    if user_input.strip() != "":
+
+        # AI response logic
         if "sad" in user_input.lower():
-            response = "I'm here for you 💙 Want to talk more?"
+            response = "I'm here for you 💙 Want to tell me what happened?"
         elif "stress" in user_input.lower():
-            response = "Take a deep breath 🌿 You’re strong!"
+            response = "Take a deep breath 🌿 What's stressing you out?"
         elif "happy" in user_input.lower():
-            response = "That's amazing! Keep smiling ✨"
+            response = "That's amazing! Tell me what's making you happy ✨"
         else:
-            response = "Tell me more 🙂"
+            response = "I understand 🙂 Tell me more about it."
+
+        # Save chat
+        st.session_state.chat_history.append(("You", user_input))
+        st.session_state.chat_history.append(("AI", response))
+
+        # Clear input box
+        st.session_state.chat_input = ""
 
         # Save chat
         st.session_state.chat_history.append(("You", user_input))
