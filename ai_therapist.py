@@ -1,16 +1,17 @@
 import random
 
 def generate_reply(user_input, chat_history):
-    # combine history + current message
-    history_text = " ".join([msg for role, msg in chat_history if role == "user"])
-    msg = (history_text + " " + user_input).lower()
 
-    # -------- THERAPIST LOGIC --------
+    msg = user_input.lower()   # ✅ only latest message
+
     if "sad" in msg or "depressed" in msg:
-        return "I'm really sorry you're feeling this way 💙. Can you tell me what’s been bothering you lately?"
+        return "I'm really sorry you're feeling this way 💙. What exactly made you feel sad today?"
 
-    elif "stress" in msg or "anxiety" in msg:
-        return "That sounds overwhelming. What do you think is causing this stress right now?"
+    elif "stress" in msg or "anxiety" in msg or "nervous" in msg:
+        return "It sounds like you're feeling nervous or stressed. Was it because of something specific like your presentation?"
+
+    elif "presentation" in msg:
+        return "Presentations can be really stressful 😔. What part made you most nervous — speaking, preparation, or audience?"
 
     elif "alone" in msg or "lonely" in msg:
         return "Feeling lonely can be really tough 🤝. Do you feel like you have someone you can talk to?"
@@ -19,10 +20,7 @@ def generate_reply(user_input, chat_history):
         return "It sounds like you're exhausted. Have you been getting enough rest lately?"
 
     elif "fail" in msg or "exam" in msg:
-        return "Setbacks can feel really heavy. But one result doesn’t define you. What part is worrying you the most?"
-
-    elif "angry" in msg:
-        return "It's okay to feel angry sometimes. What happened that made you feel this way?"
+        return "It's okay to feel upset after setbacks. One result doesn't define you. What part is worrying you the most?"
 
     elif "happy" in msg:
         return "That's really nice to hear 😊. What made you feel this way?"
@@ -30,12 +28,12 @@ def generate_reply(user_input, chat_history):
     elif "suicide" in msg or "kill myself" in msg:
         return "I'm really sorry you're feeling this way 💔. You're not alone. Please reach out to someone you trust or a helpline immediately."
 
-    # -------- DEFAULT FOLLOW-UP --------
+    # fallback (important)
     followups = [
-        "I understand. Can you tell me more about what's going on?",
-        "How long have you been feeling this way?",
-        "What do you think might be causing this?",
-        "How does this affect your daily life?"
+        "I understand. Can you explain a bit more?",
+        "How did that situation make you feel?",
+        "What do you think is bothering you the most?",
+        "I'm here for you. Tell me more about it."
     ]
 
     return random.choice(followups)
