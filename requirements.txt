@@ -7,3 +7,5 @@ seaborn
 openai
 google-generativeai
 firebase-admin
+streamlit
+google-generativeai
