@@ -1,144 +1,139 @@
 import streamlit as st
 
-# -------------------------------
-# CONFIG
-# -------------------------------
-st.set_page_config(page_title="Mental Health AI", layout="centered")
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(page_title="Mental Health AI", layout="wide")
 
-# -------------------------------
-# CSS
-# -------------------------------
+# ---------------- CUSTOM CSS ----------------
 st.markdown("""
 <style>
-.main {
-    background: linear-gradient(135deg, #0f172a, #1e293b);
-    color: white;
-}
-
-h1, h2, h3 {
-    text-align: center;
-    color: #38bdf8;
-}
-
+.main {background-color: #0f172a; color: white;}
 .stButton>button {
-    background: linear-gradient(90deg, #38bdf8, #6366f1);
+    background: linear-gradient(45deg, #6366f1, #9333ea);
     color: white;
     border-radius: 10px;
     height: 3em;
     width: 100%;
-    border: none;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------------
-# SESSION STATE
-# -------------------------------
+# ---------------- SESSION ----------------
 if "page" not in st.session_state:
-    st.session_state.page = 1
+    st.session_state.page = "home"
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# -------------------------------
-# HEADER
-# -------------------------------
-st.title("🧠 Mental Health AI Therapist")
-st.write("Your smart companion for mental wellness 💙")
+# ---------------- SMART AI FUNCTION ----------------
+def ai_therapist_reply(text):
+    text = text.lower()
 
-# =====================================================
-# PAGE 1
-# =====================================================
-if st.session_state.page == 1:
+    if any(word in text for word in ["sad", "depressed", "cry", "upset"]):
+        return "I'm really sorry you're feeling this way 💙 You don't have to go through this alone. Do you want to talk about what’s making you feel this way?"
 
-    st.subheader("📋 Enter Details")
+    elif any(word in text for word in ["stress", "anxious", "worried", "pressure"]):
+        return "That sounds really stressful. Let's slow down for a moment. Take a deep breath… what's been weighing on your mind?"
 
-    age = st.slider("Age", 10, 60, 25)
-    gender = st.selectbox("Gender", ["Male", "Female", "Other"])
-    family = st.selectbox("Family History", ["Yes", "No"])
+    elif any(word in text for word in ["lonely", "alone"]):
+        return "Feeling lonely can be really hard. I'm here with you 🤝 Do you feel like something specific is causing this?"
 
-    if st.button("Next ➡"):
-        st.session_state.page = 2
+    elif any(word in text for word in ["happy", "good", "great"]):
+        return "That’s really nice to hear 😊 What made you feel this way today?"
 
-# =====================================================
-# PAGE 2
-# =====================================================
-elif st.session_state.page == 2:
+    elif any(word in text for word in ["tired", "exhausted"]):
+        return "You sound really drained. Have you been getting enough rest lately?"
 
-    st.subheader("📝 Mental Health Assessment")
+    elif any(word in text for word in ["suicide", "kill myself", "end my life"]):
+        return "I'm really concerned about you 💔 You're not alone. Please consider reaching out to a trusted person or a helpline immediately."
 
-    q1 = st.radio("Do you feel anxious frequently?", ["Never", "Sometimes", "Often"])
-    q2 = st.radio("Do you feel low or depressed?", ["Never", "Sometimes", "Often"])
-    q3 = st.radio("Do you have trouble sleeping?", ["No", "Sometimes", "Yes"])
-    q4 = st.radio("Do you feel motivated?", ["Yes", "Sometimes", "No"])
+    else:
+        return "I’m here to listen 💙 Tell me more about what you're experiencing."
+
+# ---------------- HOME ----------------
+if st.session_state.page == "home":
+    st.title("🧠 Mental Health AI Therapist")
+    st.subheader("Your smart companion for emotional wellness 💙")
 
     col1, col2 = st.columns(2)
 
-    with col1:
-        if st.button("⬅ Back"):
-            st.session_state.page = 1
+    if col1.button("🚀 Start Assessment"):
+        st.session_state.page = "form"
 
-    with col2:
-        if st.button("Analyze 🚀"):
-            mapping = {"Never": 0, "No": 0, "Sometimes": 1, "Often": 2, "Yes": 2}
-            score = mapping[q1] + mapping[q2] + mapping[q3] + mapping[q4]
+    if col2.button("💬 Talk to AI"):
+        st.session_state.page = "chat"
 
-            st.session_state.score = score
-            st.session_state.page = 3
+# ---------------- FORM ----------------
+elif st.session_state.page == "form":
+    st.title("📋 Enter Details")
 
-# =====================================================
-# PAGE 3
-# =====================================================
-elif st.session_state.page == 3:
+    st.session_state.age = st.slider("Age", 10, 60, 25)
+    st.session_state.gender = st.selectbox("Gender", ["Male", "Female"])
+    st.session_state.family = st.selectbox("Family History", ["Yes", "No"])
+
+    if st.button("Next ➡"):
+        st.session_state.page = "questions"
+
+# ---------------- QUESTIONS ----------------
+elif st.session_state.page == "questions":
+    st.title("🧠 Mental Health Assessment")
+
+    q1 = st.radio("Do you feel stressed frequently?", ["Never", "Sometimes", "Often"])
+    q2 = st.radio("Do you feel tired or depressed?", ["Never", "Sometimes", "Often"])
+    q3 = st.radio("Do you feel motivated?", ["Yes", "Sometimes", "No"])
+
+    if st.button("Submit ✅"):
+        score = 0
+
+        if q1 == "Often": score += 2
+        if q2 == "Often": score += 2
+        if q3 == "No": score += 2
+
+        st.session_state.score = score
+        st.session_state.page = "result"
+
+# ---------------- RESULT ----------------
+elif st.session_state.page == "result":
+    st.title("📊 Your Result")
 
     score = st.session_state.score
 
     if score <= 2:
-        result = "Healthy 😊"
-    elif score <= 5:
-        result = "Mild Stress 😐"
+        status = "😊 Healthy"
+        advice = "Keep maintaining balance 🌿"
+    elif score <= 4:
+        status = "😐 Moderate Stress"
+        advice = "Try meditation, take breaks, and talk to someone 🧘"
     else:
-        result = "High Stress ⚠️"
+        status = "😟 High Stress"
+        advice = "Please consider talking to a trusted person or therapist 💬"
 
-    st.subheader(f"📊 Your Status: {result}")
+    st.metric("Status", status)
+    st.metric("Stress Score", f"{score * 20}%")
 
-    # Suggestion
-    if "Healthy" in result:
-        suggestion = "You're doing great! Keep maintaining balance 🌿"
-    elif "Mild" in result:
-        suggestion = "You may be stressed. Try meditation & talking to loved ones 💙"
-    else:
-        suggestion = "Please consider professional help 🤍 You’re not alone."
+    st.markdown(f"### 💡 Suggestion: {advice}")
 
-    st.subheader("💬 AI Therapist Suggestion")
-    st.write(suggestion)
+    if st.button("💬 Talk to AI Therapist"):
+        st.session_state.page = "chat"
 
-    # ---------------- CHATBOT ----------------
-    st.subheader("💭 Talk to AI Therapist")
+# ---------------- CHAT ----------------
+elif st.session_state.page == "chat":
+    st.title("💬 AI Therapist")
 
-    for sender, msg in st.session_state.chat_history:
-        st.write(f"**{sender}:** {msg}")
+    user_input = st.text_input("Type your message...")
 
-    # FORM (NO ERROR VERSION)
-    with st.form("chat_form", clear_on_submit=True):
-        user_input = st.text_input("Type your message...")
-        send = st.form_submit_button("Send 💬")
+    if st.button("Send") and user_input:
+        reply = ai_therapist_reply(user_input)
 
-        if send and user_input.strip() != "":
+        st.session_state.chat_history.append(("You", user_input))
+        st.session_state.chat_history.append(("AI", reply))
 
-            if "sad" in user_input.lower():
-                response = "I'm here for you 💙 Want to tell me what happened?"
-            elif "stress" in user_input.lower():
-                response = "Take a deep breath 🌿 What's stressing you out?"
-            elif "happy" in user_input.lower():
-                response = "That's amazing! Keep smiling ✨"
-            else:
-                response = "I understand 🙂 Tell me more."
+    # Show chat history
+    for sender, message in st.session_state.chat_history:
+        if sender == "You":
+            st.markdown(f"**🧑 You:** {message}")
+        else:
+            st.markdown(f"**🤖 AI:** {message}")
 
-            st.session_state.chat_history.append(("You", user_input))
-            st.session_state.chat_history.append(("AI", response))
-
-    # RESET BUTTON (FIXED INDENTATION)
     if st.button("🔄 Start Again"):
-        st.session_state.page = 1
+        st.session_state.page = "home"
         st.session_state.chat_history = []
