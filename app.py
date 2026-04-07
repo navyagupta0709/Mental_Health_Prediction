@@ -1,19 +1,5 @@
-import os
-import google.generativeai as genai
-
-genai.configure(api_key=os.getenv("API_KEY"))
-model = genai.GenerativeModel("gemini-pro")
 import streamlit as st
-import os
-import google.generativeai as genai
 import random
-import google.generativeai as genai
-
-genai.configure(api_key="AIzaSyXXXXXXXXXXXX")
-
-# -------- API CONFIG --------
-genai.configure(api_key=os.getenv("API_KEY"))
-model = genai.GenerativeModel("gemini-pro")
 
 # -------- PAGE CONFIG --------
 st.set_page_config(page_title="Mental Health AI", layout="wide")
@@ -27,6 +13,13 @@ body {background-color: #0f172a;}
     background: linear-gradient(45deg, #6366f1, #9333ea);
     color: white;
     border-radius: 10px;
+    height: 3em;
+    width: 100%;
+}
+.card {
+    background-color: #1e293b;
+    padding: 20px;
+    border-radius: 15px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -35,13 +28,10 @@ body {background-color: #0f172a;}
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
 # -------- HOME --------
 if st.session_state.page == "home":
     st.title("🧠 Mental Health AI Therapist")
-    st.subheader("Your smart companion for mental wellness 💙")
+    st.subheader("Your smart companion for emotional wellness 💙")
 
     col1, col2 = st.columns(2)
 
@@ -53,11 +43,11 @@ if st.session_state.page == "home":
 
 # -------- FORM --------
 elif st.session_state.page == "form":
-    st.title("📋 Enter Details")
+    st.title("📋 Basic Information")
 
-    st.session_state.age = st.slider("Age", 10, 60, 25)
-    st.session_state.gender = st.selectbox("Gender", ["Male", "Female"])
-    st.session_state.family = st.selectbox("Family History", ["Yes", "No"])
+    st.session_state.age = st.slider("Age", 10, 60, 22)
+    st.session_state.gender = st.selectbox("Gender", ["Male", "Female", "Other"])
+    st.session_state.family = st.selectbox("Family History of Mental Illness", ["Yes", "No"])
 
     if st.button("Next ➡"):
         st.session_state.page = "questions"
@@ -69,6 +59,7 @@ elif st.session_state.page == "questions":
     q1 = st.radio("Do you feel stressed frequently?", ["Never", "Sometimes", "Often"])
     q2 = st.radio("Do you feel tired or depressed?", ["Never", "Sometimes", "Often"])
     q3 = st.radio("Do you feel motivated?", ["Yes", "Sometimes", "No"])
+    q4 = st.radio("Do you have trouble sleeping?", ["Never", "Sometimes", "Often"])
 
     if st.button("Submit ✅"):
         score = 0
@@ -76,6 +67,7 @@ elif st.session_state.page == "questions":
         if q1 == "Often": score += 2
         if q2 == "Often": score += 2
         if q3 == "No": score += 2
+        if q4 == "Often": score += 2
 
         st.session_state.score = score
         st.session_state.page = "result"
@@ -88,53 +80,53 @@ elif st.session_state.page == "result":
 
     if score <= 2:
         status = "😊 Healthy"
-        advice = "Keep maintaining balance 🌿"
-    elif score <= 4:
+        advice = "You are doing well. Keep maintaining a healthy routine 🌿"
+    elif score <= 5:
         status = "😐 Moderate Stress"
-        advice = "Try meditation and take breaks 🧘"
+        advice = "Try meditation, take breaks, and talk to someone you trust 🧘"
     else:
         status = "😟 High Stress"
-        advice = "Consider talking to someone 💬"
+        advice = "Consider seeking professional help and don't ignore your feelings 💬"
 
-    st.metric("Status", status)
-    st.metric("Stress Score", f"{score * 20}%")
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("Status", status)
+    col2.metric("Stress Score", f"{score * 15}%")
+    col3.metric("Mood", random.choice(["Happy", "Neutral", "Low"]))
 
     st.markdown(f"### 💡 Suggestion: {advice}")
 
     if st.button("💬 Talk to AI Therapist"):
         st.session_state.page = "chat"
 
-# -------- CHAT (AI THERAPIST) --------
+# -------- CHAT --------
 elif st.session_state.page == "chat":
     st.title("💬 AI Therapist")
 
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    user_input = st.text_input("Share your feelings...")
 
-    user_input = st.chat_input("Share your feelings...")
+    if st.button("Send"):
+        msg = user_input.lower()
 
-    if user_input:
-        st.session_state.messages.append({"role": "user", "content": user_input})
+        if "sad" in msg or "depressed" in msg:
+            reply = "I'm really sorry you're feeling this way 💙. Want to share what's bothering you?"
+        
+        elif "stress" in msg or "anxiety" in msg:
+            reply = "It sounds stressful. Try taking a deep breath. I'm here to listen 🧘"
+        
+        elif "happy" in msg:
+            reply = "That's great to hear 😊! What made your day better?"
+        
+        elif "alone" in msg or "lonely" in msg:
+            reply = "You’re not alone 🤝. I'm here with you. Tell me more."
+        
+        elif "tired" in msg:
+            reply = "It sounds like you need rest. Try to relax and take care of yourself 🌸"
+        
+        else:
+            reply = "I understand. I'm here to listen. Tell me more about what you're feeling 💬"
 
-        with st.chat_message("user"):
-            st.markdown(user_input)
+        st.write("🤖:", reply)
 
-        prompt = f"""
-        You are a professional mental health therapist.
-        Give empathetic, calm, and supportive responses.
-        Avoid giving harmful advice.
-
-        User: {user_input}
-        """
-
-        response = model.generate_content(prompt)
-        reply = response.text
-
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-
-        with st.chat_message("assistant"):
-            st.markdown(reply)
-
-    if st.button("🔄 Start Again"):
+    if st.button("🔄 Back to Home"):
         st.session_state.page = "home"
