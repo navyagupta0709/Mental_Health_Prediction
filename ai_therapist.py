@@ -1,81 +1,41 @@
-import streamlit as st
+import random
 
-# Page config
-st.set_page_config(page_title="AI Therapist", layout="centered")
+def generate_reply(user_input, chat_history):
+    # combine history + current message
+    history_text = " ".join([msg for role, msg in chat_history if role == "user"])
+    msg = (history_text + " " + user_input).lower()
 
-st.title("🧠 AI Mental Health Therapist")
+    # -------- THERAPIST LOGIC --------
+    if "sad" in msg or "depressed" in msg:
+        return "I'm really sorry you're feeling this way 💙. Can you tell me what’s been bothering you lately?"
 
-st.write("Answer a few questions to assess your mental health and get suggestions.")
+    elif "stress" in msg or "anxiety" in msg:
+        return "That sounds overwhelming. What do you think is causing this stress right now?"
 
-# -------------------------------
-# Questionnaire Section
-# -------------------------------
-st.subheader("📝 Mental Health Assessment")
+    elif "alone" in msg or "lonely" in msg:
+        return "Feeling lonely can be really tough 🤝. Do you feel like you have someone you can talk to?"
 
-q1 = st.radio("Do you feel anxious frequently?", ["Never", "Sometimes", "Often"])
-q2 = st.radio("Do you feel low or depressed?", ["Never", "Sometimes", "Often"])
-q3 = st.radio("Do you have trouble sleeping?", ["No", "Sometimes", "Yes"])
-q4 = st.radio("Do you feel motivated in daily life?", ["Yes", "Sometimes", "No"])
+    elif "tired" in msg:
+        return "It sounds like you're exhausted. Have you been getting enough rest lately?"
 
-# -------------------------------
-# Assessment Logic
-# -------------------------------
-if st.button("Assess My Mental Health"):
+    elif "fail" in msg or "exam" in msg:
+        return "Setbacks can feel really heavy. But one result doesn’t define you. What part is worrying you the most?"
 
-    mapping = {
-        "Never": 0,
-        "No": 0,
-        "Sometimes": 1,
-        "Often": 2,
-        "Yes": 2
-    }
+    elif "angry" in msg:
+        return "It's okay to feel angry sometimes. What happened that made you feel this way?"
 
-    score = (
-        mapping[q1] +
-        mapping[q2] +
-        mapping[q3] +
-        mapping[q4]
-    )
+    elif "happy" in msg:
+        return "That's really nice to hear 😊. What made you feel this way?"
 
-    # Classification
-    if score <= 2:
-        result = "Healthy 😊"
-    elif score <= 5:
-        result = "Mild Stress 😐"
-    else:
-        result = "High Stress ⚠️"
+    elif "suicide" in msg or "kill myself" in msg:
+        return "I'm really sorry you're feeling this way 💔. You're not alone. Please reach out to someone you trust or a helpline immediately."
 
-    st.success(f"Your Mental Health Status: {result}")
+    # -------- DEFAULT FOLLOW-UP --------
+    followups = [
+        "I understand. Can you tell me more about what's going on?",
+        "How long have you been feeling this way?",
+        "What do you think might be causing this?",
+        "How does this affect your daily life?"
+    ]
 
-    # -------------------------------
-    # AI Therapist Response
-    # -------------------------------
-    def therapist_response(result):
-        if result == "Healthy 😊":
-            return "You're doing well! Keep maintaining a balanced lifestyle 🌿"
-        elif result == "Mild Stress 😐":
-            return "You might be experiencing some stress. Try meditation, exercise, and talking to friends 💙"
-        else:
-            return "It seems you're going through a tough time. Consider talking to a professional or someone you trust 🤍"
-
-    st.subheader("💬 AI Therapist Suggestion")
-    st.info(therapist_response(result))
-
-# -------------------------------
-# Chatbot Section
-# -------------------------------
-st.subheader("💭 Talk to AI Therapist")
-
-user_input = st.text_input("How are you feeling today?")
-
-if user_input:
-    user_input = user_input.lower()
-
-    if "sad" in user_input or "depressed" in user_input:
-        st.write("I'm really sorry you're feeling this way 💙 Do you want to share what's bothering you?")
-    elif "stress" in user_input or "anxious" in user_input:
-        st.write("Try taking a deep breath. You're stronger than you think 🌿")
-    elif "happy" in user_input:
-        st.write("That's great to hear! Keep spreading positivity ✨")
-    else:
-        st.write("I'm here to listen 🙂 Tell me more about your feelings.")
+    return random.choice(followups)
