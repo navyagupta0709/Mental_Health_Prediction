@@ -7,6 +7,9 @@ import streamlit as st
 import os
 import google.generativeai as genai
 import random
+import google.generativeai as genai
+
+genai.configure(api_key="AIzaSyXXXXXXXXXXXX")
 
 # -------- API CONFIG --------
 genai.configure(api_key=os.getenv("API_KEY"))
