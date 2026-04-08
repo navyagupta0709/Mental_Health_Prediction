@@ -1,14 +1,22 @@
 import streamlit as st
 from ai_therapist import generate_reply
 
-# Page config
 st.set_page_config(page_title="AI Therapist", layout="centered")
 
-st.title("🧠 AI Mental Health Therapist")
-st.write("Answer a few questions to assess your mental health and talk to AI therapist.")
+st.title("🧠 Mental Health AI Therapist")
+st.write("Assess your mental health and talk to an AI therapist 💙")
 
 # -------------------------------
-# Questionnaire Section
+# SESSION STATE
+# -------------------------------
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+if "result" not in st.session_state:
+    st.session_state.result = None
+
+# -------------------------------
+# ASSESSMENT SECTION
 # -------------------------------
 st.subheader("📝 Mental Health Assessment")
 
@@ -17,9 +25,6 @@ q2 = st.radio("Do you feel low or depressed?", ["Never", "Sometimes", "Often"])
 q3 = st.radio("Do you have trouble sleeping?", ["No", "Sometimes", "Yes"])
 q4 = st.radio("Do you feel motivated in daily life?", ["Yes", "Sometimes", "No"])
 
-# -------------------------------
-# Assessment Logic
-# -------------------------------
 if st.button("Assess My Mental Health"):
 
     mapping = {
@@ -42,17 +47,21 @@ if st.button("Assess My Mental Health"):
         result = "High Stress ⚠️"
         advice = "It seems you're going through a tough time. Consider talking to a professional 🤍"
 
-    st.success(f"Your Mental Health Status: {result}")
-    st.info(advice)
+    st.session_state.result = (result, advice)
 
 # -------------------------------
-# Chatbot Section
+# SHOW RESULT
+# -------------------------------
+if st.session_state.result:
+    result, advice = st.session_state.result
+
+    st.success(f"Your Mental Health Status: {result}")
+    st.info(f"💡 Suggestion: {advice}")
+
+# -------------------------------
+# CHAT SECTION
 # -------------------------------
 st.subheader("💬 Talk to AI Therapist")
-
-# session memory
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
 
 # show chat
 for role, msg in st.session_state.chat_history:
@@ -71,7 +80,7 @@ if col1.button("Send"):
 
         reply = generate_reply(user_input, st.session_state.chat_history)
 
-        st.session_state.chat_history.append(("bot", reply))
+        st.session_state.chat_history.append(("assistant", reply))
 
 if col2.button("Clear Chat"):
     st.session_state.chat_history = []
