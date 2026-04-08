@@ -21,12 +21,11 @@ Rules:
 - Support the user emotionally
 - Ask 1 follow-up question
 - Keep answers short (2-4 lines)
-- Avoid giving harmful advice
 """
         }
     ]
 
-    # -------- ADD CHAT HISTORY --------
+    # -------- CHAT HISTORY --------
     for role, msg in chat_history:
         if role == "user":
             messages.append({"role": "user", "content": msg})
@@ -38,7 +37,7 @@ Rules:
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",   # ✅ updated working model
+            model="llama-3.1-8b-instant",   # ✅ FINAL WORKING MODEL
             messages=messages
         )
 
