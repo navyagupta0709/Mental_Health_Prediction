@@ -4,8 +4,9 @@ numpy
 scikit-learn
 matplotlib
 seaborn
-openai
-google-generativeai
-firebase-admin
 streamlit
-google-generativeai
+langchain
+langchain-groq
+python-dotenv
+
+
