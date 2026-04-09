@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from groq import Groq
-from ai_therapist import generate_reply
+
 
 # API KEY
 api_key = os.getenv("GROQ_API_KEY") or st.secrets["GROQ_API_KEY"]
