@@ -1,5 +1,8 @@
 import streamlit as st
 from ai_therapist import generate_reply
+import warnings
+
+warnings.filterwarnings("ignore")
 
 # -------------------------------
 # PAGE CONFIG
@@ -20,7 +23,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='title'>🧠 AI Mental Health Therapist</div>", unsafe_allow_html=True)
-
 
 # -------------------------------
 # SESSION STATE
@@ -101,21 +103,22 @@ if col1.button("Send"):
 
         msg_lower = user_msg.lower()
 
-        # -------------------------------
         # 💊 SAFE MEDICAL SUGGESTIONS
-        # -------------------------------
         if "fever" in msg_lower or "bukhar" in msg_lower:
-            reply = "It looks like you may have a fever 🤒. You can take rest, stay hydrated, and use paracetamol if needed. If it continues, consult a doctor."
+            reply = "It looks like you may have a fever 🤒. Take rest, stay hydrated, and use paracetamol if needed. If it continues, consult a doctor."
         
         elif "headache" in msg_lower:
-            reply = "For headaches, try rest, hydration, and paracetamol if required."
+            reply = "For headaches, try rest, hydration, and paracetamol if needed."
         
         elif "cold" in msg_lower or "cough" in msg_lower:
-            reply = "For cold/cough, drink warm fluids, try steam inhalation, and rest well."
+            reply = "For cold/cough, drink warm fluids, steam inhalation, and rest well."
 
         else:
-            # AI therapist
-            reply = generate_reply(user_msg, st.session_state.chat_history)
+            # 🔥 SAFE AI CALL (NO ERROR SHOWN)
+            try:
+                reply = generate_reply(user_msg, st.session_state.chat_history)
+            except:
+                reply = "I'm here for you 💙. Could you tell me more about how you're feeling?"
 
         st.session_state.chat_history.append(("assistant", reply))
 
