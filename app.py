@@ -20,8 +20,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='title'>🧠 AI Mental Health Therapist</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Assessment + AI Chat + Smart Suggestions 💙</div>", unsafe_allow_html=True)
-
 # -------------------------------
 # SESSION STATE
 # -------------------------------
