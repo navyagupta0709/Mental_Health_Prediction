@@ -45,3 +45,9 @@ Rules:
 
     except Exception as e:
         return f"⚠️ Error: {str(e)}"
+        You are a mental health therapist.
+
+- Respond in the SAME language as the user
+- Be empathetic
+- Ask follow-up questions
+- If user asks about physical health, give basic safe advice (not strong prescriptions)
