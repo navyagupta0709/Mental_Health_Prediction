@@ -19,8 +19,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='title'>🧠 AI Health & Mental Therapist</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Talk freely in any language 💙</div>", unsafe_allow_html=True)
+st.markdown("<div class='title'>🧠 AI Mental Health Therapist</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Assessment + AI Chat + Smart Suggestions 💙</div>", unsafe_allow_html=True)
 
 # -------------------------------
 # SESSION STATE
@@ -28,24 +28,68 @@ st.markdown("<div class='subtitle'>Talk freely in any language 💙</div>", unsa
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
+if "result" not in st.session_state:
+    st.session_state.result = None
+
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
 # -------------------------------
-# CHAT DISPLAY
+# 📝 ASSESSMENT SECTION
+# -------------------------------
+st.subheader("📝 Mental Health Assessment")
+
+q1 = st.radio("Do you feel anxious frequently?", ["Never", "Sometimes", "Often"])
+q2 = st.radio("Do you feel low or depressed?", ["Never", "Sometimes", "Often"])
+q3 = st.radio("Do you have trouble sleeping?", ["No", "Sometimes", "Yes"])
+q4 = st.radio("Do you feel motivated in daily life?", ["Yes", "Sometimes", "No"])
+
+if st.button("Assess My Mental Health"):
+
+    mapping = {
+        "Never": 0,
+        "No": 0,
+        "Sometimes": 1,
+        "Often": 2,
+        "Yes": 2
+    }
+
+    score = mapping[q1] + mapping[q2] + mapping[q3] + mapping[q4]
+
+    if score <= 2:
+        result = "Healthy 😊"
+        advice = "You're doing well! Maintain a balanced lifestyle 🌿"
+    elif score <= 5:
+        result = "Mild Stress 😐"
+        advice = "Try meditation, exercise, and talking to friends 💙"
+    else:
+        result = "High Stress ⚠️"
+        advice = "Consider talking to a professional or counselor 🤍"
+
+    st.session_state.result = (result, advice)
+
+# -------------------------------
+# RESULT DISPLAY
+# -------------------------------
+if st.session_state.result:
+    result, advice = st.session_state.result
+    st.success(f"Your Mental Health Status: {result}")
+    st.info(f"💡 Suggestion: {advice}")
+
+# -------------------------------
+# 💬 CHAT SECTION
 # -------------------------------
 st.subheader("💬 Talk to AI Therapist")
 
+# show chat
 for role, msg in st.session_state.chat_history:
     if role == "user":
         st.markdown(f"<div class='chat-user'>🧑 {msg}</div>", unsafe_allow_html=True)
     else:
         st.markdown(f"<div class='chat-bot'>🤖 {msg}</div>", unsafe_allow_html=True)
 
-# -------------------------------
-# INPUT
-# -------------------------------
-user_input = st.text_input("Type in any language...", key="user_input")
+# input
+user_input = st.text_input("Talk in any language...", key="user_input")
 
 col1, col2 = st.columns(2)
 
@@ -55,22 +99,22 @@ if col1.button("Send"):
 
         st.session_state.chat_history.append(("user", user_msg))
 
-        # -------------------------------
-        # BASIC MEDICAL LOGIC (SAFE)
-        # -------------------------------
         msg_lower = user_msg.lower()
 
-        if "fever" in msg_lower:
-            reply = "It seems like you may have a fever 🤒. You can take rest, drink fluids, and use paracetamol for relief. If it continues, please consult a doctor."
+        # -------------------------------
+        # 💊 SAFE MEDICAL SUGGESTIONS
+        # -------------------------------
+        if "fever" in msg_lower or "bukhar" in msg_lower:
+            reply = "It looks like you may have a fever 🤒. You can take rest, stay hydrated, and use paracetamol if needed. If it continues, consult a doctor."
         
         elif "headache" in msg_lower:
-            reply = "Headaches can happen due to stress or dehydration. Try rest, hydration, and paracetamol if needed."
+            reply = "For headaches, try rest, hydration, and paracetamol if required."
         
         elif "cold" in msg_lower or "cough" in msg_lower:
-            reply = "For cold or cough, stay warm, drink fluids, and consider steam inhalation. If severe, consult a doctor."
+            reply = "For cold/cough, drink warm fluids, try steam inhalation, and rest well."
 
         else:
-            # AI therapist response
+            # AI therapist
             reply = generate_reply(user_msg, st.session_state.chat_history)
 
         st.session_state.chat_history.append(("assistant", reply))
