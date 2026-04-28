@@ -1,7 +1,7 @@
-import os
+import streamlit as st
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def generate_reply(user_input, chat_history):
 
@@ -11,24 +11,22 @@ def generate_reply(user_input, chat_history):
             "content": """
 You are a professional mental health therapist.
 
-Rules:
-- Be empathetic and comforting
-- Always validate feelings first
-- Respond in SAME language
-- Keep answers short
-- Ask 1 follow-up question
+- Always be empathetic
+- Validate feelings first
+- Respond in same language
+- Ask follow-up question
+- Sound human, not robotic
 """
         }
     ]
 
-    # history
-    for role,msg in chat_history:
-        if role=="user":
-            messages.append({"role":"user","content":msg})
-        else:
-            messages.append({"role":"assistant","content":msg})
+    for role, msg in chat_history:
+        messages.append({
+            "role": role,
+            "content": msg
+        })
 
-    messages.append({"role":"user","content":user_input})
+    messages.append({"role": "user", "content": user_input})
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
