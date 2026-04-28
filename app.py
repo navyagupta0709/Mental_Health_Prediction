@@ -364,7 +364,7 @@ Crisis resources to share when needed:
     with col_tools:
         st.markdown('<div class="section-title">🛠 Quick Tools</div>', unsafe_allow_html=True)
 
-        with st.expander("🌬 Breathing"):
+        with st.expander("🌬 Breathing", color="black"):
             st.markdown("""**4-7-8 Technique**
 1. Inhale **4 sec**
 2. Hold **7 sec**
@@ -372,7 +372,7 @@ Crisis resources to share when needed:
 
 Repeat 3–4 cycles.""")
 
-        with st.expander("⚓ Grounding 5-4-3-2-1"):
+        with st.expander("⚓ Grounding 5-4-3-2-1",  color="black"):
             st.markdown("""Notice:
 - **5** things you see
 - **4** things you touch
@@ -380,7 +380,7 @@ Repeat 3–4 cycles.""")
 - **2** things you smell
 - **1** thing you taste""")
 
-        with st.expander("✍ Journal Prompts"):
+        with st.expander("✍ Journal Prompts",  color="black"):
             for p in [
                 "What am I feeling right now, and why?",
                 "What is one thing I'm grateful for today?",
