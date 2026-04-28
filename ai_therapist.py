@@ -1,39 +1,38 @@
 import os
-import streamlit as st
-from groq import Groq
+from openai import OpenAI
 
-
-# API KEY
-api_key = os.getenv("GROQ_API_KEY") or st.secrets["GROQ_API_KEY"]
-
-client = Groq(api_key=api_key)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_reply(user_input, chat_history):
 
     messages = [
         {
             "role": "system",
-            "content": "You are a friendly mental health therapist. Respond in the same language as the user. Be supportive and ask follow-up questions."
+            "content": """
+You are a professional mental health therapist.
+
+Rules:
+- Be empathetic and comforting
+- Always validate feelings first
+- Respond in SAME language
+- Keep answers short
+- Ask 1 follow-up question
+"""
         }
     ]
 
-    # chat history
-    for role, msg in chat_history:
-        if role == "user":
-            messages.append({"role": "user", "content": msg})
+    # history
+    for role,msg in chat_history:
+        if role=="user":
+            messages.append({"role":"user","content":msg})
         else:
-            messages.append({"role": "assistant", "content": msg})
+            messages.append({"role":"assistant","content":msg})
 
-    # current message
-    messages.append({"role": "user", "content": user_input})
+    messages.append({"role":"user","content":user_input})
 
-    try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=messages
-        )
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages
+    )
 
-        return response.choices[0].message.content
-
-    except Exception as e:
-        return "Sorry, something went wrong. Please try again."
+    return response.choices[0].message.content
