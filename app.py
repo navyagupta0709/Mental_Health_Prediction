@@ -97,7 +97,8 @@ if col1.button("Send"):
             try:
                 reply = generate_reply(user_input, st.session_state.chat_history)
             except:
-                reply = "I'm here for you 💙 Tell me more about how you're feeling."
+               except Exception as e:
+    reply = f"⚠️ Error: {str(e)}"
 
         st.session_state.chat_history.append(("assistant", reply))
 
