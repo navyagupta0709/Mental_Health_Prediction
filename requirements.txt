@@ -8,5 +8,4 @@ streamlit
 langchain
 langchain-groq
 python-dotenv
-
-
+openai
