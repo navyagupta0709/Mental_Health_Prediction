@@ -33,7 +33,7 @@ if "result" not in st.session_state:
     st.session_state.result = None
 
 # -------------------------------
-# ASSESSMENT
+# 📝 ASSESSMENT SECTION
 # -------------------------------
 st.subheader("📝 Mental Health Assessment")
 
@@ -59,46 +59,52 @@ if st.button("Assess My Mental Health"):
 
     st.session_state.result = (result, advice)
 
+# -------------------------------
+# RESULT DISPLAY
+# -------------------------------
 if st.session_state.result:
-    r,a = st.session_state.result
+    r, a = st.session_state.result
     st.success(f"Your Mental Health Status: {r}")
     st.info(f"💡 Suggestion: {a}")
 
 # -------------------------------
-# CHAT
+# 💬 CHAT SECTION
 # -------------------------------
 st.subheader("💬 Talk to AI Therapist")
 
-for role,msg in st.session_state.chat_history:
-    if role=="user":
+for role, msg in st.session_state.chat_history:
+    if role == "user":
         st.markdown(f"<div class='chat-user'>🧑 {msg}</div>", unsafe_allow_html=True)
     else:
         st.markdown(f"<div class='chat-bot'>🤖 {msg}</div>", unsafe_allow_html=True)
 
+# IMPORTANT: no key bug now
 user_input = st.text_input("Talk in any language...")
 
-col1,col2 = st.columns(2)
+col1, col2 = st.columns(2)
 
 if col1.button("Send"):
-    if user_input.strip()!="":
+    if user_input.strip() != "":
 
         st.session_state.chat_history.append(("user", user_input))
 
         msg_lower = user_input.lower()
 
-        # basic safe medical suggestions
+        # 💊 SAFE MEDICAL SUGGESTIONS
         if "fever" in msg_lower or "bukhar" in msg_lower:
-            reply = "It looks like you may have a fever 🤒. Rest, hydration, and paracetamol may help. Please consult a doctor if needed."
+            reply = "It looks like you may have a fever 🤒. Take rest, stay hydrated, and use paracetamol if needed. Please consult a doctor if it continues."
         
         elif "headache" in msg_lower:
-            reply = "Headaches can be due to stress or dehydration. Try rest and water."
+            reply = "Headaches can be due to stress or dehydration. Try rest, hydration, and relaxation."
+
+        elif "cold" in msg_lower or "cough" in msg_lower:
+            reply = "For cold/cough, drink warm fluids, try steam inhalation, and rest well."
 
         else:
             try:
                 reply = generate_reply(user_input, st.session_state.chat_history)
-            except:
-               except Exception as e:
-    reply = f"⚠️ Error: {str(e)}"
+            except Exception as e:
+                reply = f"⚠️ Error: {str(e)}"
 
         st.session_state.chat_history.append(("assistant", reply))
 
