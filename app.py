@@ -1,5 +1,6 @@
 import streamlit as st
 from ai_therapist import generate_reply
+import re
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -10,7 +11,7 @@ warnings.filterwarnings("ignore")
 st.set_page_config(page_title="AI Therapist", layout="centered")
 
 # -------------------------------
-# PREMIUM UI (UNCHANGED)
+# UI (UNCHANGED STYLE)
 # -------------------------------
 st.markdown("""
 <style>
@@ -33,7 +34,7 @@ if "result" not in st.session_state:
     st.session_state.result = None
 
 # -------------------------------
-# 📝 ASSESSMENT SECTION
+# 📝 ASSESSMENT
 # -------------------------------
 st.subheader("📝 Mental Health Assessment")
 
@@ -59,9 +60,6 @@ if st.button("Assess My Mental Health"):
 
     st.session_state.result = (result, advice)
 
-# -------------------------------
-# RESULT DISPLAY
-# -------------------------------
 if st.session_state.result:
     r, a = st.session_state.result
     st.success(f"Your Mental Health Status: {r}")
@@ -78,33 +76,65 @@ for role, msg in st.session_state.chat_history:
     else:
         st.markdown(f"<div class='chat-bot'>🤖 {msg}</div>", unsafe_allow_html=True)
 
-# IMPORTANT: no key bug now
 user_input = st.text_input("Talk in any language...")
 
 col1, col2 = st.columns(2)
 
+# -------------------------------
+# NLP INTENT DETECTION
+# -------------------------------
+def detect_intent(text):
+    text = text.lower()
+
+    if re.search(r"stress|anxiety|tension|nervous", text):
+        return "stress"
+    elif re.search(r"sad|depressed|low|cry", text):
+        return "depression"
+    elif re.search(r"lonely|alone", text):
+        return "loneliness"
+    elif re.search(r"fever|bukhar|headache|cold|cough", text):
+        return "health"
+    else:
+        return "general"
+
+# -------------------------------
+# CBT STYLE RESPONSES
+# -------------------------------
+def therapy_response(intent):
+
+    if intent == "stress":
+        return "I understand this feels overwhelming 💙. Try a small grounding exercise: take a slow breath in for 4 seconds, hold for 4, and release for 6. What seems to be causing this stress?"
+
+    elif intent == "depression":
+        return "I'm really sorry you're feeling this way 💙. Sometimes even small steps matter—like getting out of bed or talking to someone. What’s been on your mind lately?"
+
+    elif intent == "loneliness":
+        return "Feeling alone can be really heavy 🤝. You’re not alone in this moment—we’re talking right now. Would you like to share what’s been making you feel this way?"
+
+    elif intent == "health":
+        return "It seems like a health concern. Basic care like rest, hydration, and paracetamol may help. If symptoms persist, please consult a doctor."
+
+    return None
+
+# -------------------------------
+# SEND BUTTON
+# -------------------------------
 if col1.button("Send"):
     if user_input.strip() != "":
 
         st.session_state.chat_history.append(("user", user_input))
 
-        msg_lower = user_input.lower()
+        intent = detect_intent(user_input)
 
-        # 💊 SAFE MEDICAL SUGGESTIONS
-        if "fever" in msg_lower or "bukhar" in msg_lower:
-            reply = "It looks like you may have a fever 🤒. Take rest, stay hydrated, and use paracetamol if needed. Please consult a doctor if it continues."
-        
-        elif "headache" in msg_lower:
-            reply = "Headaches can be due to stress or dehydration. Try rest, hydration, and relaxation."
+        # first try NLP therapy response
+        reply = therapy_response(intent)
 
-        elif "cold" in msg_lower or "cough" in msg_lower:
-            reply = "For cold/cough, drink warm fluids, try steam inhalation, and rest well."
-
-        else:
+        # fallback to AI
+        if reply is None:
             try:
                 reply = generate_reply(user_input, st.session_state.chat_history)
-            except Exception as e:
-                reply = f"⚠️ Error: {str(e)}"
+            except:
+                reply = "I'm here for you 💙. Tell me more about how you're feeling."
 
         st.session_state.chat_history.append(("assistant", reply))
 
