@@ -1,7 +1,6 @@
 import streamlit as st
 from ai_therapist import generate_reply
 import warnings
-
 warnings.filterwarnings("ignore")
 
 # -------------------------------
@@ -24,11 +23,27 @@ st.markdown("""
 st.markdown("<div class='title'>🧠 AI Mental Health Therapist</div>", unsafe_allow_html=True)
 
 # -------------------------------
+# SIDEBAR — API KEY (only addition)
+# -------------------------------
+with st.sidebar:
+    st.markdown("### 🔑 Groq API Key")
+    groq_key = st.text_input(
+        "Enter your Groq API key",
+        type="password",
+        placeholder="gsk_...",
+        help="Get a free key at console.groq.com",
+    )
+    st.markdown(
+        "<small style='color:gray;'>Your key is never stored. "
+        "You can also set the <code>GROQ_API_KEY</code> environment variable.</small>",
+        unsafe_allow_html=True,
+    )
+
+# -------------------------------
 # SESSION STATE
 # -------------------------------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
 if "result" not in st.session_state:
     st.session_state.result = None
 
@@ -36,17 +51,14 @@ if "result" not in st.session_state:
 # 📝 ASSESSMENT
 # -------------------------------
 st.subheader("📝 Mental Health Assessment")
-
 q1 = st.radio("Do you feel anxious frequently?", ["Never", "Sometimes", "Often"])
 q2 = st.radio("Do you feel low or depressed?", ["Never", "Sometimes", "Often"])
 q3 = st.radio("Do you have trouble sleeping?", ["No", "Sometimes", "Yes"])
 q4 = st.radio("Do you feel motivated in daily life?", ["Yes", "Sometimes", "No"])
 
 if st.button("Assess My Mental Health"):
-
-    mapping = {"Never":0,"No":0,"Sometimes":1,"Often":2,"Yes":2}
+    mapping = {"Never": 0, "No": 0, "Sometimes": 1, "Often": 2, "Yes": 2}
     score = mapping[q1] + mapping[q2] + mapping[q3] + mapping[q4]
-
     if score <= 2:
         result = "Healthy 😊"
         advice = "You're doing well! Maintain a balanced lifestyle 🌿"
@@ -56,7 +68,6 @@ if st.button("Assess My Mental Health"):
     else:
         result = "High Stress ⚠️"
         advice = "Consider talking to a professional 🤍"
-
     st.session_state.result = (result, advice)
 
 if st.session_state.result:
@@ -78,7 +89,6 @@ for role, msg in st.session_state.chat_history:
 
 # input
 user_input = st.text_input("Talk in any language...")
-
 col1, col2 = st.columns(2)
 
 # -------------------------------
@@ -86,26 +96,32 @@ col1, col2 = st.columns(2)
 # -------------------------------
 if col1.button("Send"):
     if user_input.strip() != "":
-
         msg_lower = user_input.lower()
 
-        # 💊 basic safe suggestions
+        # 💊 Basic safe keyword suggestions (no API needed)
         if "fever" in msg_lower or "bukhar" in msg_lower:
-            reply = "Lagta hai bukhar ho sakta hai 🤒. Rest lo, paani zyada piyo, aur paracetamol le sakte ho. Agar continue rahe toh doctor se consult karo."
-        
+            reply = (
+                "Lagta hai bukhar ho sakta hai 🤒. Rest lo, paani zyada piyo, "
+                "aur paracetamol le sakte ho. Agar continue rahe toh doctor se consult karo."
+            )
         elif "headache" in msg_lower:
             reply = "Headache ho raha hai toh thoda rest lo, paani piyo aur screen time kam karo."
-
         else:
             try:
-                reply = generate_reply(user_input, st.session_state.chat_history)
-            except:
-                reply = "Main yahan hoon 💙… thoda aur bataoge kya chal raha hai?"
+                reply = generate_reply(
+                    user_input,
+                    st.session_state.chat_history,
+                    api_key=groq_key,   # pass sidebar key
+                )
+            except Exception as e:
+                reply = f"Main yahan hoon 💙… thoda aur bataoge kya chal raha hai? (Error: {e})"
 
-        # ✅ CORRECT ORDER (IMPORTANT FIX)
+        # ✅ Append after reply is ready
         st.session_state.chat_history.append(("user", user_input))
         st.session_state.chat_history.append(("assistant", reply))
+        st.rerun()
 
 # clear chat
 if col2.button("Clear Chat"):
     st.session_state.chat_history = []
+    st.rerun()
