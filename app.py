@@ -5,7 +5,7 @@ from datetime import datetime
 
 # ─── Page Configuration ───────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="MindEase — AI Mental Health Companion",
+    page_title="AI Mental Health Companion",
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -157,6 +157,43 @@ html, body, [class*="css"] {
 }
 .stButton > button:hover { transform:translateY(-1px) !important; box-shadow:0 4px 16px rgba(78,107,53,0.3) !important; }
 .stSlider > div > div > div > div { background: #7BA05B !important; }
+</style>
+""", unsafe_allow_html=True)
+st.markdown("""
+<style>
+
+/* FIX: Card text visibility */
+.card, .metric-card, .msg-ai .bubble {
+    color: #2C3E35 !important;
+}
+
+/* FIX: Recommended resources text */
+.card p, .card li, .card span {
+    color: #2C3E35 !important;
+    font-weight: 500;
+}
+
+/* FIX: headings inside cards */
+.card h1, .card h2, .card h3 {
+    color: #1f2d26 !important;
+}
+
+/* FIX: make white cards slightly visible */
+.card {
+    background: rgba(255,255,255,0.96) !important;
+}
+
+/* OPTIONAL: add subtle hover (premium feel) */
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(44,62,53,0.15);
+}
+
+/* FIX: ensure all text inside main area is visible */
+section.main * {
+    color: #2C3E35;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
